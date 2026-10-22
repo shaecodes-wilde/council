@@ -86,7 +86,7 @@ class RunTests(unittest.TestCase):
         self.cli('record-tally', self.root, '--artifact', 'r3/tally.json')
         return document
 
-    def verify_stage(self, tied=False, finding=False, finding_metadata=None, verifier_extra=None, repair_actor=None):
+    def verify_stage(self, tied=False, finding=False, finding_metadata=None, verifier_extra=None, repair_actor=None, skip_verifier=None):
         self.r3(tied=tied)
         if tied:
             self.cli('draw-author', self.root, '--seed', 'repeatable')
@@ -117,6 +117,8 @@ class RunTests(unittest.TestCase):
         artifact = manifest['accepted'][pointer['stage']][pointer['letter']]
         digest = artifact['sha256']
         for letter in critics:
+            if letter == skip_verifier:
+                continue
             data = {'final_sha256': digest, 'findings': {'F1': {'disposition': 'unresolved', 'verified': False}} if finding else {}}
             data.update((verifier_extra or {}).get(letter, {}))
             self.output('verify', letter, '```json\n' + json.dumps(data) + '\n```')
@@ -318,6 +320,28 @@ class RunTests(unittest.TestCase):
         self.write('r1/A.md', 'Published result')
         self.cli('accept', self.root, key, '--published', 'r1/A.md')
         self.assertEqual(self.cli('resume', self.root)['reconcile_tasks'], [])
+
+    def test_malformed_verification_can_be_repaired_without_reopening_vote(self):
+        final = self.verify_stage(skip_verifier='B')
+        before = copy.deepcopy(self.manifest()['vote'])
+        invalid = ({'verdict': 'blocked'}, {'verdict': 'block', 'remaining_blockers': ['Unstructured blocker']})
+        for attempt, extra in enumerate(invalid, 1):
+            data = {'final_sha256': final['final_sha256'], 'findings': {}, **extra}
+            text = '```json\n' + json.dumps(data) + '\n```'
+            task = self.cli('intent', self.root, '--stage', 'verify', '--letter', 'B', '--attempt', attempt)
+            self.write(task['output_path'], text)
+            self.cli('record-task', self.root, task['request_id'], '--task-id', task['request_id'] + '-task',
+                     '--status', 'completed', '--work-state', 'result_available')
+            path = f'verify/B-invalid-{attempt}.md'
+            self.write(path, text)
+            self.cli('accept', self.root, task['request_id'], '--published', path, ok=False)
+            self.assertNotIn('B', self.manifest()['accepted']['verify'])
+            self.assertEqual(self.manifest()['vote'], before)
+        good = {'final_sha256': final['final_sha256'], 'findings': {}, 'verdict': 'ship', 'remaining_blockers': []}
+        self.output('verify', 'B', '```json\n' + json.dumps(good) + '\n```', attempt=3)
+        self.assertEqual(self.manifest()['vote'], before)
+        self.cli('record-final', self.root, '--artifact', 'final-check.json')
+        self.assertEqual(self.cli('finalize', self.root)['readiness'], 'ready')
 
     def test_incomplete_completed_and_interrupted_child_work_can_be_cancelled(self):
         self.advance()

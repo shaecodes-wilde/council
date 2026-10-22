@@ -222,7 +222,17 @@ def accept(root, manifest, args):
     if stage == 'verify':
         pointer = manifest.get('final_plan', {})
         plan = accepted_paths(root, manifest, pointer.get('stage')).get(pointer.get('letter'))
-        require(plan is not None and last_json(published).get('final_sha256') == sha256(plan), 'critic must verify the exact final hash')
+        data = last_json(published)
+        require(plan is not None and data.get('final_sha256') == sha256(plan), 'critic must verify the exact final hash')
+        findings = data.get('findings')
+        known = {item['id'] for item in manifest['findings']}
+        require(type(findings) is dict and set(findings) == known, 'verification must address every finding')
+        for item in findings.values():
+            require(type(item) is dict and type(item.get('verified')) is bool
+                    and item.get('disposition') in ('resolved', 'rejected', 'unresolved'),
+                    'verification finding needs a disposition and verified boolean')
+        # Reject repairable format errors before accepting immutable output.
+        evaluate_final_objections({letter: data})
     artifact = {**artifact_ref(root, args.published), 'request_id': args.request_id, 'epoch': task['epoch']}
     old = manifest['accepted'].setdefault(stage, {}).get(letter)
     require(old is None or old == artifact, 'accepted artifact is immutable; reopen before replacement')

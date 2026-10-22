@@ -61,6 +61,7 @@ arguments. Python helpers manage local artifacts; model execution belongs to T3.
    “Operational safety”. Confidence, measured current performance and predicted
    quality are separate. Freeze the rubric before proposals.
 5. Initialize a unique `debates/<date>-<slug>-<id>/` with `scripts/run.py`.
+   Create the `debates/` parent directory first.
    Read [contracts.md](references/contracts.md) before preparing manifest inputs.
    Resolve the actual current T3 thread ID from runtime metadata or a current
    thread read; never invent an owner ID or use a backing child's thread ID.

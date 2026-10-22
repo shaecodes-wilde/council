@@ -161,6 +161,9 @@ is checked by the moderator against the synthesis brief.
 ### New final-verifier objections (compatible schema 1 addition)
 
 Verifier `verdict` accepts `ship`, `ship-after-fixes`, or `block`.
+`accept` validates verification metadata before making the artifact immutable;
+a malformed verdict, blocker entry or findings map gets a precise repair error.
+Retry that unaccepted task with a new attempt key under the same voting epoch.
 `remaining_blockers` is an array of `{id, issue, severity?, hard_constraint?, ...}`;
 `description` is accepted as an alias for `issue`. IDs must be unique per critic;
 severity defaults to `must`, hard_constraint to false. Other model metadata such
