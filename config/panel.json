@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "preferred": [
+    {"alias": "opus", "name": "Opus 5.5 · High", "providerInstanceId": "claudeAgent", "model": "claude-opus-5-5", "model_identity": "claude-opus-5-5", "options": {"effort": "high"}},
+    {"alias": "sol", "name": "GPT-6.1 Sol · High", "providerInstanceId": "codex", "model": "gpt-6.1-sol", "model_identity": "gpt-6.1-sol", "options": {"reasoningEffort": "high"}},
+    {"alias": "deepseek", "name": "DeepSeek V4.1 Flash · High", "providerInstanceId": "opencode", "model": "opencode/deepseek-v4.1-flash-free", "model_identity": "deepseek-v4.1-flash", "options": {"variant": "high", "agent": "build"}},
+    {"alias": "devin", "name": "Devin SWE-2 · Max", "providerInstanceId": "acpRegistry_devin", "model": "swe-2-high", "model_identity": "swe-2", "options": {"thought_level": "max", "mode": "accept-edits"}}
+  ],
+  "aliases": {
+    "fable": {"providerInstanceId": "claudeAgent", "model": "claude-fable-5-1", "model_identity": "claude-fable-5-1", "options": {"effort": "high"}},
+    "sonnet": {"providerInstanceId": "claudeAgent", "model": "claude-sonnet-5-5", "model_identity": "claude-sonnet-5-5", "options": {"effort": "high"}},
+    "gpt-6-sol": {"providerInstanceId": "codex", "model": "gpt-6-sol", "model_identity": "gpt-6-sol", "options": {"reasoningEffort": "high"}},
+    "grok": {"providerInstanceId": "grok", "model": "grok-build", "model_identity": "grok-build", "options": {}},
+    "kimi": {"providerInstanceId": "acpRegistry_devin", "model": "kimi-k3-high", "model_identity": "kimi-k3", "options": {}},
+    "deepseek-pro": {"providerInstanceId": "acpRegistry_devin", "model": "deepseek-v4-pro-high", "model_identity": "deepseek-v4-pro", "options": {"thought_level": "max"}}
+  },
+  "fallback_order": {
+    "code": ["glm", "minimax", "deepseek"],
+    "strategy": ["minimax", "glm", "deepseek"],
+    "redesign": ["minimax", "glm", "deepseek"],
+    "artifact": ["glm", "minimax", "deepseek"]
+  },
+  "fallbacks": [
+    {
+      "alias": "glm", "name": "GLM-5.3-Flash Free · High", "providerInstanceId": "opencode",
+      "model": "opencode/glm-5.3-flash-free", "model_identity": "glm-5.3-flash",
+      "options": {"variant": "high", "agent": "build"},
+      "reviewed_on": "2026-10-21", "free_source": "https://opencode.ai/v2/docs/console/models/#free-models",
+      "benchmark": {"source": "https://artificialanalysis.ai/models/comparisons/deepseek-v4-1-flash-vs-glm-5-3-flash", "model": "GLM-5.3-Flash", "metrics": {"AA Intelligence Index v4.3.2": 42, "Terminal-Bench 4.0 percent": 33}, "configuration_note": "Independent model-level measurements; OpenCode endpoint/options need a runtime smoke check."}
+    },
+    {
+      "alias": "minimax", "name": "MiniMax-M3.1-Flash Free · High", "providerInstanceId": "opencode",
+      "model": "opencode/minimax-m3.1-flash-free", "model_identity": "minimax-m3.1-flash",
+      "options": {"variant": "high", "agent": "build"},
+      "reviewed_on": "2026-10-21", "free_source": "https://opencode.ai/v2/docs/console/models/#free-models",
+      "benchmark": {"source": "https://artificialanalysis.ai/models/minimax-m3-1-flash", "model": "MiniMax-M3.1-Flash", "metrics": {"AA Intelligence Index v4.3.2": 43}, "configuration_note": "Reasoning model measurement, not a guarantee for this OpenCode endpoint or effort."}
+    },
+    {
+      "alias": "deepseek", "name": "DeepSeek V4.1 Flash Free · Max", "providerInstanceId": "opencode",
+      "model": "opencode/deepseek-v4.1-flash-free", "model_identity": "deepseek-v4.1-flash",
+      "options": {"variant": "max", "agent": "build"},
+      "reviewed_on": "2026-10-21", "free_source": "https://opencode.ai/v2/docs/console/models/#free-models",
+      "benchmark": {"source": "https://artificialanalysis.ai/models/comparisons/deepseek-v4-1-flash-vs-glm-5-3-flash", "model": "DeepSeek V4.1 Flash (Max)", "metrics": {"AA Intelligence Index v4.3.2": 39, "Terminal-Bench 4.0 percent": 27}, "configuration_note": "Max-effort base model; do not substitute scores for the distinct Flash-1017 checkpoint."}
+    }
+  ]
+}
