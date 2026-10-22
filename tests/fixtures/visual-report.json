@@ -1,0 +1,23 @@
+{
+  "title": "Council: ship a recoverable importer",
+  "final_plan": "## Direction\nBuild the importer in bounded batches.\n\n## Evidence\nE1: a reproduced interrupted write loses the current batch.\n\n## Contributions\nAdopt A's journal and B's small batch size. Reject C's rewrite because it breaks the existing API.\n\n## Strongest objection\nThe journal adds disk writes. Measure throughput before rollout.\n\n## Conditions\nRepair R1 before release.\n\n## Ordered actions and acceptance\n1. Add the journal in importer.py. Interrupt after a write and verify recovery.\n2. Add bounded batches. Compare every imported row with the source.\n3. Roll out to one tenant. Roll back on lost or duplicated rows.\n\n## Your decisions\nChoose the initial tenant; other implementation work can begin.",
+  "seats": [
+    {"letter": "A", "name": "Model Alpha", "color": 1, "active": true},
+    {"letter": "B", "name": "Model Beta", "color": 2, "active": true},
+    {"letter": "C", "name": "Model Gamma", "color": 3, "active": true},
+    {"letter": "D", "name": "Original Delta", "color": 4, "active": false, "dropped": ["r2"]}
+  ],
+  "readiness": "needs-user-decision",
+  "lifecycle": "complete",
+  "actions": [{"order": 1, "action": "Implement recovery journal", "gate": "Can begin"}],
+  "conditions": [{"id": "R1", "condition": "Interruption recovery passes"}],
+  "user_calls": [{"question": "Which tenant goes first?", "options": ["Tenant one", "Tenant two"]}],
+  "evidence": [{"id": "E1", "type": "verified fact", "source": "recovery fixture", "result": "Current implementation loses a batch"}],
+  "stage_rosters": {"r2": ["A", "B", "C"]},
+  "consensus": [{"text": "Retain the API", "stage": "r2", "agree": ["A", "B", "C", "D"]}],
+  "disputes": [{"id": "D1", "question": "Rewrite the API?", "positions": {"B": {"label": "Retain API", "changed": true, "before": "Rewrite", "after": "Retain API", "reason": "The compatibility fixture fails under a rewrite."}}, "outcome": "Retain the API"}],
+  "proposals": [{"letter": "A", "r1": "Journal every batch", "final": "Journal bounded batches"}],
+  "score_chart": {"title": "Peer score comparison", "dimensions": ["Correctness", "Simplicity"], "min": 1, "max": 10, "series": [{"label": "Plan A", "letter": "A", "values": [9, 8.5]}]},
+  "substitutions": [{"seat": "D", "from": "Original Delta", "to": null, "reason": "Quota exhausted", "epoch": 2}],
+  "redteam": {"issues": [{"id": "F1", "issue": "Recover interrupted writes", "disposition": "resolved", "verified": false, "must_fix": true, "plan_sha256": "old-version", "evidence": "Recovery test"}], "verdicts": [{"letter": "B", "verdict": "ship-after-fixes", "summary": "Verify the final hash"}]}
+}
